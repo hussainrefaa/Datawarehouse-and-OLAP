@@ -6,7 +6,10 @@
     -- Description         : For My-sql
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	
 -- There are two temporary tables created for key/id sequencing used in this.
-
+------------------------------------------------------------------------------------------------------------------------
+-- OLAP USEFUL SCRIPTS This Script Use To Build Relational Databases Multi-Dimensional Databases(MDB) 
+-- data warehouse online analytical processing (OLAP) Star Schema
+-------------------------------------------------------------------------------------------------------------------------
 -- Small-numbers table
 DROP TABLE IF EXISTS numbers_small;
 
