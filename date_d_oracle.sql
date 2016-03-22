@@ -6,8 +6,16 @@
     -- Description         : For Oracle
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	
 -- ------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	
+-- There are two temporary tables created for key/id sequencing used in this.
+------------------------------------------------------------------------------------------------------------------------
 -- OLAP USEFUL SCRIPTS This Script Use To Build Relational Databases Multi-Dimensional Databases(MDB) 
 -- data warehouse online analytical processing (OLAP) Star Schema
+--  this script wiil generete all days from 2013- 2022
+-- include weekend, work day, next day, previous day, day_of_week,
+-- day_of_month ,day_of_yea, previous_day,next_day, weekend,
+-- week_of_yea, month, month_of_year,quarter_of_year,year
+-- The will inhance performance of your imensional Databases
 -------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Create Date Dimension table
