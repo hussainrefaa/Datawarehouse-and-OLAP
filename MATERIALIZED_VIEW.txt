@@ -1,0 +1,127 @@
+create user mof identified by mof;
+GRANT CONNECT, DBA TO mof;
+grant create any view to mof;
+
+
+grant  drop DIMENSION to test;
+
+grant create materialized view to test;
+grant drop materialized view to test;
+grant alter materialized view to test;
+grant global materialized view to test;
+
+conn mof/mof@orcl
+
+truncate table sales
+drop table sales;
+
+CREATE TABLE sales (
+   trans_date    DATE,
+   cust_id       INT,
+   sales_amount  NUMBER
+); 
+
+
+INSERT /*+ APPEND */ INTO sales
+SELECT TRUNC(SYSDATE,'YYYY')+MOD(ROWNUM,366) trans_date,
+       MOD(ROWNUM,100) cust_id,
+       ABS(DBMS_RANDOM.RANDOM)/100 sales_amount
+  FROM all_objects
+/
+COMMIT; 
+
+BEGIN
+    FOR i IN 1 .. 4
+    LOOP
+        INSERT /*+ APPEND */ INTO sales
+        SELECT trans_date, cust_id, 
+          ABS(DBMS_RANDOM.RANDOM)/100 sales_amount
+          FROM sales;
+        COMMIT;
+   END LOOP;
+END;
+/
+
+CREATE TABLE time1 (
+   day  PRIMARY KEY,
+   mmyyyy,
+   mon_yyyy,
+   qtr_yyyy,
+   yyyy
+)
+ORGANIZATION INDEX
+AS
+SELECT DISTINCT
+   trans_date DAY,
+   CAST (TO_CHAR(trans_date,'MMYYYY') AS NUMBER) MMYYYY,
+   TO_CHAR(trans_date,'MON-YYYY') MON_YYYY,
+   'Q' || CEIL(TO_CHAR(trans_date,'MM')/3) || ' FY'
+       || TO_CHAR(trans_date,'YYYY') QTR_YYYY,
+   CAST(TO_CHAR(trans_date, 'YYYY') AS NUMBER) YYYY
+  FROM sales
+/ 
+
+
+
+ANALYZE TABLE SALES COMPUTE STATISTICS;
+
+ANALYZE TABLE TIME1 COMPUTE STATISTICS; 
+
+CREATE MATERIALIZED VIEW sales_mv
+BUILD IMMEDIATE
+REFRESH ON DEMAND
+ENABLE QUERY REWRITE
+AS
+SELECT sales.cust_id,
+       SUM(sales.sales_amount) sales_amount,
+       time1.mmyyyy
+  FROM sales, time1
+ WHERE sales.trans_date = time1.day
+ GROUP BY sales.cust_id, time1.mmyyyy
+/ 
+
+ALTER SESSION SET QUERY_REWRITE_ENABLED=TRUE;
+ALTER SESSION SET QUERY_REWRITE_INTEGRITY=TRUSTED;
+
+
+SET AUTOTRACE ON
+
+SELECT time1.mmyyyy, SUM(sales_amount)
+  FROM sales, time1
+ WHERE sales.trans_date = time1.day
+GROUP BY time1.mmyyyy
+/
+SET AUTOTRACE OFF 
+
+SET TIMING ON
+SET AUTOTRACE ON
+SELECT time1.qtr_yyyy, SUM(sales_amount)
+  FROM sales, time1
+ WHERE sales.trans_date = time1.day
+GROUP BY time1.qtr_yyyy
+/
+SET AUTOTRACE OFF 
+
+
+CREATE DIMENSION time_dim
+    LEVEL DAY      IS time1.day
+    LEVEL MMYYYY   IS time1.mmyyyy
+    LEVEL QTR_YYYY IS time1.qtr_yyyy
+    LEVEL YYYY     IS time1.yyyy
+HIERARCHY TIME_ROLLUP
+(
+ day CHILD OF
+ mmyyyy CHILD OF
+ qtr_yyyy CHILD OF
+ yyyy
+)
+ATTRIBUTE mmyyyy
+DETERMINES mon_yyyy; 
+
+
+SET TIMING ON
+SET AUTOTRACE ON
+SELECT time1.qtr_yyyy, SUM(sales_amount)
+ FROM sales, time1
+WHERE sales.trans_date = time1.day
+GROUP BY time1.qtr_yyyy
