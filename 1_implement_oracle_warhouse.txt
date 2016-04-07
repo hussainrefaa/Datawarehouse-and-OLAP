@@ -1,0 +1,613 @@
+-- Author: 	Hussain refaa
+-- creation Date: 	2008
+-- Last Updated: 	0000-00-00
+-- Control Number:	xxxx-xxxx-xxxx-xxxx
+-- Version: 	0.0
+-- Phone : +4915775148443
+-- Email: hus244@gmail.com
+
+--- we will create this tablespace :
+1- Dimensions - for all dimensions data :
+
+
+     CREATE TABLESPACE "dimensions"
+     DATAFILE '+testdb_data1' SIZE 6208K REUSE
+     AUTOEXTEND ON NEXT 64K MAXSIZE 32767M
+     EXTENT MANAGEMENT LOCAL
+     SEGMENT SPACE MANAGEMENT AUTO;
+
+2- default area , which users are assigned by default :
+
+    CREATE TABLESPACE "war_default"
+     DATAFILE '+testdb_data1' SIZE 6208K REUSE
+     AUTOEXTEND ON NEXT 64K MAXSIZE 32767M
+     EXTENT MANAGEMENT LOCAL
+     SEGMENT SPACE MANAGEMENT AUTO;
+
+3- summary - for the materriazed views we will create :
+   
+   CREATE TABLESPACE "summary"
+     DATAFILE '+testdb_data1' SIZE 6208K REUSE
+     AUTOEXTEND ON NEXT 64K MAXSIZE 32767M
+     EXTENT MANAGEMENT LOCAL
+     SEGMENT SPACE MANAGEMENT AUTO;
+
+
+4- on tablespace for each month of the year ,
+   named purche_month_year for example purch_jan_2003 :
+
+    CREATE TABLESPACE "purch_jan_2003"
+     DATAFILE '+testdb_data1' SIZE 6208K REUSE
+     AUTOEXTEND ON NEXT 64K MAXSIZE 32767M
+     EXTENT MANAGEMENT LOCAL
+     SEGMENT SPACE MANAGEMENT AUTO;
+
+5- index tablespace - form indexes 
+
+ CREATE TABLESPACE "war_index"
+     DATAFILE '+testdb_data1' SIZE 6208K REUSE
+     AUTOEXTEND ON NEXT 64K MAXSIZE 32767M
+     EXTENT MANAGEMENT LOCAL
+     SEGMENT SPACE MANAGEMENT AUTO;
+
+
+6- Temp area - for temporary space 
+    
+CREATE TEMPORARY TABLESPACE dimension_temp TEMPFILE 
+  '+testdb_data1' SIZE 100M AUTOEXTEND ON NEXT 5M MAXSIZE UNLIMITED
+TABLESPACE GROUP ''
+EXTENT MANAGEMENT LOCAL UNIFORM SIZE 1M;
+
+
+7- operenenal user
+
+   CREATE USER Warhouse_user IDENTIFIED BY Warhouse_user
+   default tablespace "war_default" Temporary tablespace dimension_temp;
+
+GRANT
+  CREATE SESSION,
+  CREATE TABLE ,
+  RESOURCE,
+  DBA,CREATE PUBLIC DATABASE LINK,
+  create any procedure,
+  EXECUTE ANY PROCEDURE
+  TO Warhouse_user;
+/
+
+
+alter user Warhouse_user
+quota unlimited on "dimensions"
+quota unlimited on "war_default"
+quota unlimited on "summary"
+quota unlimited on "purch_jan_2003"
+quota unlimited on "war_index"
+
+
+
+
+--- ENABLE NOVALIDATE (ETL stage)
+SQL> alter table todays_special_offers 
+     enable novalidate constraint SYS_C001136
+/
+
+
+--- DISABLE CONSTRAINT before data is loaded (ETL stage)
+SQL> alter table todays_special_offers 
+     DISABLE CONSTRAINT SYS_C001136
+/
+
+
+--- RELY (ETL stage)
+SQL> alter table purchases MODIFY CONSTRAINT special_offer RELY;
+
+
+--- view
+
+--- you can see information about constratints
+SQL> select * from user_constraints
+
+--- to khnow if constraint rely or not 
+SQL> select constraint_name, table_name, rely 
+     from all_constraints where owner = 'Warhouse_user';
+
+--- to khnow if constraint  validated or not 
+SQL> select constraint_name, table_name, validated  
+     from all_constraints where owner = 'Warhouse_user';
+
+
+
+----- hardware configurations for a warehouse
+-- review creating and configure asm instnce 
+
+
+--- Physical Desiggn of the data warehouse
+
+ CREATE TABLESPACE "PURCHASES_JAN2003"
+     DATAFILE '+testdb_data1' SIZE 6208K REUSE
+     AUTOEXTEND ON NEXT 64K MAXSIZE 32767M
+     EXTENT MANAGEMENT LOCAL
+     SEGMENT SPACE MANAGEMENT AUTO;
+
+ CREATE TABLESPACE "PURCHASES_FEB2003"
+     DATAFILE '+testdb_data1' SIZE 6208K REUSE
+     AUTOEXTEND ON NEXT 64K MAXSIZE 32767M
+     EXTENT MANAGEMENT LOCAL
+     SEGMENT SPACE MANAGEMENT AUTO;
+
+ CREATE TABLESPACE "PURCHASES_MAR2003"
+     DATAFILE '+testdb_data1' SIZE 6208K REUSE
+     AUTOEXTEND ON NEXT 64K MAXSIZE 32767M
+     EXTENT MANAGEMENT LOCAL
+     SEGMENT SPACE MANAGEMENT AUTO;
+
+CREATE TABLESPACE "PURCHASES_MAXVALUE"
+     DATAFILE '+testdb_data1' SIZE 6208K REUSE
+     AUTOEXTEND ON NEXT 64K MAXSIZE 32767M
+     EXTENT MANAGEMENT LOCAL
+     SEGMENT SPACE MANAGEMENT AUTO;
+
+--------------------------------------------------------------------------------                 
+--------------------------------------------------------------------------------                 
+--------------------------------------------------------------------------------                 
+-- Range partitioning
+create table Warhouse_user.purchases_range
+(
+ product_id           varchar2(8),
+ time_key             date,
+ customer_id          varchar2(10),
+ purchase_date        date,
+ purchase_time        number(4,0),
+ purchase_price       number(6,0),
+ shipping_charge      number(5,2),
+ today_special_offer  varchar2(1) )
+partition by range (time_key)
+(partition purchases_jan2003
+ values less than (TO_DATE('01-FEB-2003','DD-mon-yyyy')) tablespace PURCHASES_JAN2003,
+ partition purchases_feb2003
+ values less than (TO_DATE('01-MAR-2003','DD-mon-yyyy')) tablespace PURCHASES_FEB2003,
+partition purchases_mar2003
+ values less than (TO_DATE('01-APR-2003','DD-mon-yyyy')) tablespace PURCHASES_MAR2003,
+partition purchase_catchall values less than (MAXVALUE) tablespace PURCHASES_MAXVALUE)
+/
+
+--------------------------------------------------------------------------------                 
+--------------------------------------------------------------------------------                 
+--------------------------------------------------------------------------------                 
+-- hash partitioning
+
+
+create table Warhouse_user.purchases_hash
+(
+ product_id           varchar2(8),
+ time_key             date,
+ customer_id          varchar2(10),
+ purchase_date        date,
+ purchase_time        number(4,0),
+ purchase_price       number(6,0),
+ shipping_charge      number(5,2),
+ today_special_offer  varchar2(1) )
+partition by hash (product_id) partitions 4
+/
+
+---- list partitioning
+create table Warhouse_user.regional_sales
+(
+ state                varchar2(2),
+ store_number         number,
+ dept_number          number,
+ dept_name            number,
+ sales_amount         number(6,2)
+)
+partition by list (state) 
+(
+	PARTITION northeast       values('NH','VT','MA','RI','CT'),
+	PARTITION southeast       values('NC','GA','FL'),
+	PARTITION nortweast       values('WA','OR'),
+	PARTITION midweast        values('IL','WI', 'OH'),
+	PARTITION weast           values('CA','NV', 'AZ'),
+	PARTITION otherstates     values(DEFAULT)
+)
+/
+
+--------------------------------------------------------------------------------                 
+--------------------------------------------------------------------------------                 
+--------------------------------------------------------------------------------                 
+---- Range-Hash Partitioning
+-- first create this tablespace for example :
+
+--- jan tablespaces 
+CREATE TABLESPACE "PURCHASES_JAN2003_1"
+     DATAFILE '+testdb_data1' SIZE 6208K REUSE
+     AUTOEXTEND ON NEXT 64K MAXSIZE 32767M
+     EXTENT MANAGEMENT LOCAL
+     SEGMENT SPACE MANAGEMENT AUTO;
+
+
+CREATE TABLESPACE "PURCHASES_JAN2003_2"
+     DATAFILE '+testdb_data1' SIZE 6208K REUSE
+     AUTOEXTEND ON NEXT 64K MAXSIZE 32767M
+     EXTENT MANAGEMENT LOCAL
+     SEGMENT SPACE MANAGEMENT AUTO;
+
+
+CREATE TABLESPACE "PURCHASES_JAN2003_3"
+     DATAFILE '+testdb_data1' SIZE 6208K REUSE
+     AUTOEXTEND ON NEXT 64K MAXSIZE 32767M
+     EXTENT MANAGEMENT LOCAL
+     SEGMENT SPACE MANAGEMENT AUTO;
+
+
+CREATE TABLESPACE "PURCHASES_JAN2003_4"
+     DATAFILE '+testdb_data1' SIZE 6208K REUSE
+     AUTOEXTEND ON NEXT 64K MAXSIZE 32767M
+     EXTENT MANAGEMENT LOCAL
+     SEGMENT SPACE MANAGEMENT AUTO;
+
+
+--- mar tablespaces 
+CREATE TABLESPACE "PURCHASES_MAR2003_1"
+     DATAFILE '+testdb_data1' SIZE 6208K REUSE
+     AUTOEXTEND ON NEXT 64K MAXSIZE 32767M
+     EXTENT MANAGEMENT LOCAL
+     SEGMENT SPACE MANAGEMENT AUTO;
+
+
+CREATE TABLESPACE "PURCHASES_MAR2003_2"
+     DATAFILE '+testdb_data1' SIZE 6208K REUSE
+     AUTOEXTEND ON NEXT 64K MAXSIZE 32767M
+     EXTENT MANAGEMENT LOCAL
+     SEGMENT SPACE MANAGEMENT AUTO;
+
+
+CREATE TABLESPACE "PURCHASES_MAR2003_3"
+     DATAFILE '+testdb_data1' SIZE 6208K REUSE
+     AUTOEXTEND ON NEXT 64K MAXSIZE 32767M
+     EXTENT MANAGEMENT LOCAL
+     SEGMENT SPACE MANAGEMENT AUTO;
+
+
+CREATE TABLESPACE "PURCHASES_MAR2003_4"
+     DATAFILE '+testdb_data1' SIZE 6208K REUSE
+     AUTOEXTEND ON NEXT 64K MAXSIZE 32767M
+     EXTENT MANAGEMENT LOCAL
+     SEGMENT SPACE MANAGEMENT AUTO;
+
+
+--- feb tablespaces 
+CREATE TABLESPACE "PURCHASES_FEB2003_1"
+     DATAFILE '+testdb_data1' SIZE 6208K REUSE
+     AUTOEXTEND ON NEXT 64K MAXSIZE 32767M
+     EXTENT MANAGEMENT LOCAL
+     SEGMENT SPACE MANAGEMENT AUTO;
+
+
+CREATE TABLESPACE "PURCHASES_FEB2003_2"
+     DATAFILE '+testdb_data1' SIZE 6208K REUSE
+     AUTOEXTEND ON NEXT 64K MAXSIZE 32767M
+     EXTENT MANAGEMENT LOCAL
+     SEGMENT SPACE MANAGEMENT AUTO;
+
+
+CREATE TABLESPACE "PURCHASES_FEB2003_3"
+     DATAFILE '+testdb_data1' SIZE 6208K REUSE
+     AUTOEXTEND ON NEXT 64K MAXSIZE 32767M
+     EXTENT MANAGEMENT LOCAL
+     SEGMENT SPACE MANAGEMENT AUTO;
+
+
+CREATE TABLESPACE "PURCHASES_FEB2003_4"
+     DATAFILE '+testdb_data1' SIZE 6208K REUSE
+     AUTOEXTEND ON NEXT 64K MAXSIZE 32767M
+     EXTENT MANAGEMENT LOCAL
+     SEGMENT SPACE MANAGEMENT AUTO;
+
+
+create table Warhouse_user.purchases_range_hash
+(
+ product_id           varchar2(8),
+ time_key             date,
+ customer_id          varchar2(10),
+ purchase_date        date,
+ purchase_time        number(4,0),
+ purchase_price       number(6,2),
+ shipping_charge      number(5,2),
+ today_special_offer  varchar2(1) 
+)
+partition by range (time_key)
+subpartition by hash(product_id) subpartitions 4 
+(partition purchases_jan2003
+  values less than (to_date('01-FEB-2003', 'DD-MON-YYYY'))
+     STORE IN (purchases_jan2003_1,
+               purchases_jan2003_2,
+               purchases_jan2003_3,
+               purchases_jan2003_4), 
+   partition purchases_feb2003 
+    values less than (to_date('01-MAR-2003','DD-MON-YYYY'))
+       STORE IN (purchases_feb2003_1,
+                 purchases_feb2003_2,
+                 purchases_feb2003_3,
+                 purchases_feb2003_4),
+   partition purchases_mar2003 
+    values less than (to_date('01-APR-2003','DD-MON-YYYY'))
+       STORE IN (purchases_mar2003_1,
+                 purchases_mar2003_2,
+                 purchases_mar2003_3,
+                 purchases_mar2003_4))
+/
+
+
+--------------------------------------------------------------------------------                 
+--------------------------------------------------------------------------------                 
+--------------------------------------------------------------------------------                 
+ CREATE TABLESPACE "SALES_NE"
+     DATAFILE '+testdb_data1' SIZE 6208K REUSE
+     AUTOEXTEND ON NEXT 64K MAXSIZE 32767M
+     EXTENT MANAGEMENT LOCAL
+     SEGMENT SPACE MANAGEMENT AUTO;              
+
+
+ CREATE TABLESPACE "SALES_SE"
+     DATAFILE '+testdb_data1' SIZE 6208K REUSE
+     AUTOEXTEND ON NEXT 64K MAXSIZE 32767M
+     EXTENT MANAGEMENT LOCAL
+     SEGMENT SPACE MANAGEMENT AUTO;              
+
+ CREATE TABLESPACE "SALES_MV"
+     DATAFILE '+testdb_data1' SIZE 6208K REUSE
+     AUTOEXTEND ON NEXT 64K MAXSIZE 32767M
+     EXTENT MANAGEMENT LOCAL
+     SEGMENT SPACE MANAGEMENT AUTO;              
+
+CREATE TABLESPACE "SALES_W"
+     DATAFILE '+testdb_data1' SIZE 6208K REUSE
+     AUTOEXTEND ON NEXT 64K MAXSIZE 32767M
+     EXTENT MANAGEMENT LOCAL
+     SEGMENT SPACE MANAGEMENT AUTO;              
+
+CREATE TABLESPACE "SALES_MW"
+     DATAFILE '+testdb_data1' SIZE 6208K REUSE
+     AUTOEXTEND ON NEXT 64K MAXSIZE 32767M
+     EXTENT MANAGEMENT LOCAL
+     SEGMENT SPACE MANAGEMENT AUTO;              
+
+
+--- Range_List Partitioning
+
+create table Warhouse_user.sales_Range_List
+(
+state              varchar2(2),
+store_number       number,
+dept_number        number,
+dept_name          varchar2(10),
+sales_amount       number(6,2),
+sale_date          date,
+item_number        number(10)
+)
+partition by range (sale_date) 
+subpartition by list(state) 
+subpartition template 
+(
+ subpartition "NorthEast"
+       values ('NH', 'VT', 'MA', 'RI', 'CT' )
+       tablespace sales_ne,
+ subpartition "SouthEast"
+       values ('NC', 'GA', 'FL')
+       tablespace sales_se,
+subpartition "NorthWest"
+       values ('IL', 'WI', 'OH')
+       tablespace sales_mw,
+subpartition "West"
+       values ('CA', 'NV', 'AZ')
+       tablespace sales_w )
+  (partition sales_jan_2003 
+      values less than (to_date('01-FEB-2003','DD-MON-YYYY')),
+   partition sales_feb_2003 
+      values less than (to_date('01-MAR-2003','DD-MON-YYYY')),      
+   partition sales_mar_2003 
+      values less than (to_date('01-APR-2003','DD-MON-YYYY')));
+
+
+--- to get partition and subpartition names are as follows
+SQL> select partition_name, subpartition_name 
+     from user_tab_subpartitions 
+     where table_name = 'SALES_RANGE_LIST'
+/
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+CREATE TABLESPACE "PURCHASES_JAN2003_100"
+     DATAFILE '+testdb_data1' SIZE 6208K REUSE
+     AUTOEXTEND ON NEXT 64K MAXSIZE 32767M
+     EXTENT MANAGEMENT LOCAL
+     SEGMENT SPACE MANAGEMENT AUTO;    
+
+CREATE TABLESPACE "PURCHASES_JAN2003_200"
+     DATAFILE '+testdb_data1' SIZE 6208K REUSE
+     AUTOEXTEND ON NEXT 64K MAXSIZE 32767M
+     EXTENT MANAGEMENT LOCAL
+     SEGMENT SPACE MANAGEMENT AUTO;    
+
+CREATE TABLESPACE "PURCHASES_FEB2003_200"
+     DATAFILE '+testdb_data1' SIZE 6208K REUSE
+     AUTOEXTEND ON NEXT 64K MAXSIZE 32767M
+     EXTENT MANAGEMENT LOCAL
+     SEGMENT SPACE MANAGEMENT AUTO;    
+
+CREATE TABLESPACE "PURCHASES_MAR2003_200"
+     DATAFILE '+testdb_data1' SIZE 6208K REUSE
+     AUTOEXTEND ON NEXT 64K MAXSIZE 32767M
+     EXTENT MANAGEMENT LOCAL
+     SEGMENT SPACE MANAGEMENT AUTO;    
+
+
+CREATE TABLESPACE "PURCHASES_FEB2003_ALL"
+     DATAFILE '+testdb_data1' SIZE 6208K REUSE
+     AUTOEXTEND ON NEXT 64K MAXSIZE 32767M
+     EXTENT MANAGEMENT LOCAL
+     SEGMENT SPACE MANAGEMENT AUTO;    
+
+CREATE TABLESPACE "PURCHASES_MAR2003_ALL"
+     DATAFILE '+testdb_data1' SIZE 6208K REUSE
+     AUTOEXTEND ON NEXT 64K MAXSIZE 32767M
+     EXTENT MANAGEMENT LOCAL
+     SEGMENT SPACE MANAGEMENT AUTO;    
+
+
+--- Multicolumn Partition key
+create table Warhouse_user.purchases_Multicolumn_Part
+(
+ product_id           varchar2(8),
+ time_key             date,
+ customer_id          varchar2(10),
+ purchase_date        date,
+ purchase_time        number(4,0),
+ purchase_price       number(6,2),
+ shipping_charge      number(5,2),
+ today_special_offer  varchar2(1) 
+)
+partition by range (time_key, product_id)
+(
+ partition purchases_jan2003_100
+  values less than (to_date('31-JAN-2003', 'DD-MON-YYYY'), 100)
+     tablespace purchases_jan2003_100, 
+ partition purchases_jan2003_200
+  values less than (to_date('31-JAN-2003', 'DD-MON-YYYY'), 200)
+     tablespace purchases_jan2003_200,
+ partition purchases_feb2003_all
+  values less than (to_date('28-FEB-2003', 'DD-MON-YYYY'), 100)
+     tablespace purchases_feb2003_200,
+ partition purchases_mar2003_all
+  values less than (to_date('31-MAR-2003', 'DD-MON-YYYY'), 100)
+     tablespace purchases_mar2003_200
+)
+/
+
+---- example of data 
+SQL> insert into purchases_Multicolumn_Part (product_id, time_key)
+       values (1, TO_DATE('15-JAN-2003','dd-mon-yyyy'));
+
+SQL> insert into purchases_Multicolumn_Part (product_id, time_key)
+       values (150, TO_DATE('15-JAN-2003','dd-mon-yyyy'));
+
+SQL> commit;
+
+
+--- example of select statement
+SQL> select * from  purchases_Multicolumn_Part partition(purchases_jan2003_100);
+
+Elapsed: 00:00:00.01
+
+--- this equal
+SQL> select * from  purchases_Multicolumn_Part 
+     where 
+        (time_key < '31-jan-2003')
+     or (time_key < '31-jan-2003' and product_id < 100)
+
+Elapsed: 00:00:00.03
+
+
+
+-------------------------------------------------------------------------
+-------------------------------------------------------------------------
+-------------------------------------------------------------------------
+---- operation in partion 
+
+--- add partion 
+SQL> alter table purchases_range add partition purchases_jan2005
+     values less than (to_date('01-jan-2005','dd-mm-yyyy'));
+
+
+
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+--- bitmap index
+SQL> create bitmap index Warhouse_user.purchase_cust_index
+     on purchases (customer.gender)
+     from purchases, customer 
+     where purchases.customer_id = customer.customer_id ;
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+
+--- global index
+SQL> create index Warhouse_user.purchase_product_index on purchases 
+      (product_id) 
+      global
+      partition by range (product_id) 
+      (partition sp1000 values less than ('SP1000'),
+       partition sp2000 values less than ('SP2000'),
+        partition other  values less than (maxvalue));
+
+
+     
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+--- local index 
+SQL> create index Warhouse_user.purchase_local_index 
+      on purchases (time_key, customer_id) 
+     local
+     (partition indexjan2003 tablespace purchases_jan2003_idx,
+      partition indexfeb2003 tablespace purchases_feb2003_idx,
+      partition indexmar2003 tablespace purchases_mar2003_idx
+     );
+
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+CREATE TABLESPACE "PRODUCT_IDX"
+     DATAFILE '+testdb_data1' SIZE 6208K REUSE
+     AUTOEXTEND ON NEXT 64K MAXSIZE 32767M
+     EXTENT MANAGEMENT LOCAL
+     SEGMENT SPACE MANAGEMENT AUTO;    
+
+
+--- creating an IOT (index organized tables) 
+--- useful when you have dimension tables
+
+create table product_iot
+( product_id number primary key,
+  category  varchar2(10) ,
+  description CLOB,
+  detailed_spaces blob
+)
+organization index  
+including category  
+pctthreshold 30  
+tablespace product_idx 
+storage (initial 8k next 8k pctincrease 10) 
+overflow  
+storage 
+(initial 16k next 16k pctincrease 10);
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+--- table compression 
+--- we have left the last one uncompressed, because more data may be added to this partition
+create table Warhouse_user.purchases_Comp
+(
+ product_id           varchar2(8),
+ time_key             date,
+ customer_id          varchar2(10),
+ purchase_date        date,
+ purchase_time        number(4,0),
+ purchase_price       number(6,2),
+ shipping_charge      number(5,2),
+ today_special_offer  varchar2(1) 
+)
+partition by range (time_key)
+(
+  partition purchases_jan2003
+    values less than (to_date('01-FEB-2003','DD-MON-YYYY'))
+    tablespace purchases_jan2003 COMPRESS,
+  partition purchases_feb2003
+    values less than (to_date('01-MAR-2003','DD-MON-YYYY'))
+    tablespace purchases_feb2003 COMPRESS,
+  partition purchases_mar2003
+    values less than (to_date('01-APR-2003','DD-MON-YYYY'))
+    tablespace purchases_mar2003 COMPRESS,
+  partition purchases_catchall
+    values less than (MAXVALUE)
+    tablespace purchases_maxvalue NOCOMPRESS);

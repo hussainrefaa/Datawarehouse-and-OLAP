@@ -1,0 +1,762 @@
+
+-- Author: 	Hussain refaa
+-- creation Date: 	2008
+-- Last Updated: 	0000-00-00
+-- Control Number:	xxxx-xxxx-xxxx-xxxx
+-- Version: 	0.0
+-- Phone : +4915775148443
+-- Email: hus244@gmail.com
+
+drop user olap cascade;
+
+CREATE TABLESPACE "GLOBAL"
+    DATAFILE 'GLOBAL.DBF' SIZE 90M AUTOEXTEND ON NEXT 5M;
+
+-- A typical temporary tablespace definition for use
+-- with analytic workspaces would be as follows:
+
+CREATE TEMPORARY TABLESPACE gsw_aw_temp 
+       TEMPFILE 'gsw_aw_temp.tmp'
+       SIZE 1000M REUSE 
+       AUTOEXTEND ON 
+       NEXT 5M 
+       MAXSIZE UNLIMITED
+       EXTENT MANAGEMENT LOCAL
+       UNIFORM SIZE 1m; 
+
+
+
+create user olap identified by olap;
+
+alter user olap
+QUOTA UNLIMITED ON "GLOBAL"
+QUOTA UNLIMITED ON "GLOBAL_TEMP";
+
+GRANT CONNECT, DBA TO olap;
+grant olap_user to olap;
+conn olap/olap@orcl
+----------------------------------------------------------------------
+---- First: creating a good old star schema:
+create table customer (
+  id             number   primary key,
+  id_continent   number,
+  id_country     number
+);
+
+create table selling_month (
+  id              number   primary key,
+  yr              number   (4),
+  mth             number   (12) check (mth between 1 and 12),
+  id_quarter      number,
+  id_month        number,
+  end_of_month    date,
+  end_of_quarter  date,
+  end_of_year     date
+);
+
+create table product (
+  id              number   primary key,
+  id_category     number
+);
+
+create table item_sold (
+  qty         number(4),
+  id_customer references customer ,
+  id_month    references selling_month,
+  id_product  references product
+);
+
+----------------------------------------------------------------------
+-----Defining the dimensions:
+
+---- first dimensions:
+begin 
+  cwm2_olap_dimension.create_dimension(
+    user,             -- dimension owner
+    'CUSTOMER_DIM',   -- dimension name
+    'Customer',       -- display name
+    'Customers',      -- plural name
+    'Customer',       -- short description
+    'Customer'        -- description
+  );
+end;
+/
+
+---- second dimensions:
+begin 
+  cwm2_olap_dimension.create_dimension(
+    user,             -- dimension owner
+    'PRODUCT_DIM',    -- dimension name
+    'Product',        -- display name
+    'Product',        -- plural name
+    'Product',        -- short description
+    'Product'         -- description
+  );
+end;
+/
+
+---- third dimensions:
+begin 
+  cwm2_olap_dimension.create_dimension(
+    user,             -- dimension owner
+    'TIME_DIM',       -- dimension name
+    'Time',           -- display name
+    'Time',           -- plural name
+    'Time',           -- short description
+    'Time',           -- description
+    'Time'            -- dimension type, note: this is the only time dimension in this example
+  );
+end;
+/
+------------------------------------------------------------------------------
+-----Defining the hierarchies:
+-----Some hierarchies need to be created.
+
+---- first hierarchies:
+begin 
+  cwm2_olap_hierarchy.create_hierarchy (
+    user,                     -- owner of dimension to which hierarchy is assigned
+    'CUSTOMER_DIM',           -- name of dimension to which hierarchy is assigned
+    'CUSTOMER_HIER',          -- name of hierarchy
+    'Customer hierarchy',     -- display name
+    'Customer hierarchy',     -- short description
+    'Customer hierarchy',     -- description
+    'UNSOLVED LEVEL-BASED'    -- solved code
+  );
+end;
+/
+
+---- second hierarchies:
+begin 
+  cwm2_olap_hierarchy.create_hierarchy (
+    user,                     -- owner of dimension to which hierarchy is assigned
+    'PRODUCT_DIM',            -- name of dimension to which hierarchy is assigned
+    'PRODUCT_HIER',           -- name of hierarchy
+    'Product hierarchy',      -- display name
+    'Product hierarchy',      -- short description
+    'Product hierarchy',      -- description
+    'UNSOLVED LEVEL-BASED'    -- solved code
+  );
+end;
+/
+
+---- third hierarchies:
+begin 
+  cwm2_olap_hierarchy.create_hierarchy (
+    user,                     -- owner of dimension to which hierarchy is assigned
+    'TIME_DIM',               -- name of dimension to which hierarchy is assigned
+    'TIME_HIER',              -- name of hierarchy
+    'Time hierarchy',         -- display name
+    'Time hierarchy',         -- short description
+    'Time hierarchy',         -- description
+    'UNSOLVED LEVEL-BASED'    -- solved code
+  );
+end;
+/
+---------------------------------------------------------------------------
+--- Creating the levels: 
+
+-- Levels for the customer dimension
+
+begin 
+  cwm2_olap_level.create_level (
+    user,                     -- owner of dimension to which level is assigned
+    'CUSTOMER_DIM',           -- name of dimension to which level is assigned
+    'LVL_ALL_CUSTOMERS',      -- name of level
+    'All customers',          -- display name
+    'All customers',          -- plural name
+    'All customers',          -- short description
+    'All customers'           -- description
+  );
+end;
+/
+
+begin 
+  cwm2_olap_level.create_level (
+    user,                     -- owner of dimension to which level is assigned
+    'CUSTOMER_DIM',           -- name of dimension to which level is assigned
+    'LVL_CUSTOMERS_CONTINENT',-- name of level
+    'Customer on continent',  -- display name
+    'Customers on continent', -- plural name
+    'Customers on continent', -- short description
+    'Customers on continent'  -- description
+  );
+end;
+/
+
+begin 
+  cwm2_olap_level.create_level (
+    user,                     -- owner of dimension to which level is assigned
+    'CUSTOMER_DIM',           -- name of dimension to which level is assigned
+    'LVL_CUSTOMERS_COUNTRY',  -- name of level
+    'Customer in country',    -- display name
+    'Customers in country',   -- plural name
+    'Customers in country',   -- short description
+    'Customers in country'    -- description
+  );
+end;
+/
+
+
+-- Levels for the product dimension
+
+begin 
+  cwm2_olap_level.create_level (
+    user,                     -- owner of dimension to which level is assigned
+    'PRODUCT_DIM',            -- name of dimension to which level is assigned
+    'LVL_ALL_PRODUCTS',       -- name of level
+    'All products',           -- display name
+    'All products',           -- plural name
+    'All products',           -- short description
+    'All products'            -- description
+  );
+end;
+/
+
+begin 
+  cwm2_olap_level.create_level (
+    user,                     -- owner of dimension to which level is assigned
+    'PRODUCT_DIM',            -- name of dimension to which level is assigned
+    'LVL_PRODUCT_CATEGORY',   -- name of level
+    'Product category',       -- display name
+    'Product categories',     -- plural name
+    'Product categories',     -- short description
+    'Product categories'      -- description
+  );
+end;
+/
+
+-- Levels for the time dimension
+
+begin 
+  cwm2_olap_level.create_level (
+    user,                     -- owner of dimension to which level is assigned
+    'TIME_DIM',               -- name of dimension to which level is assigned
+    'LVL_YEAR',               -- name of level
+    'Year',                   -- display name
+    'Years',                  -- plural name
+    'Year',                   -- short description
+    'Year'                    -- description
+  );
+end;
+/
+
+begin 
+  cwm2_olap_level.create_level (
+    user,                     -- owner of dimension to which level is assigned
+    'TIME_DIM',               -- name of dimension to which level is assigned
+    'LVL_QUARTER',            -- name of level
+    'Quarter',                -- display name
+    'Quarters',               -- plural name
+    'Quarter',                -- short description
+    'Quarter'                 -- description
+  );
+end;
+/
+
+begin 
+  cwm2_olap_level.create_level (
+    user,                     -- owner of dimension to which level is assigned
+    'TIME_DIM',               -- name of dimension to which level is assigned
+    'LVL_MONTH',              -- name of level
+    'Month',                  -- display name
+    'Months',                 -- plural name
+    'Month',                  -- short description
+    'Month'                   -- description
+  );
+end;
+/
+---------------------------------------------------------------------------------
+----- Specifying the level to hierarchy relationship: 
+-- Customer
+
+begin 
+  cwm2_olap_level.add_level_to_hierarchy (
+    user,                      -- owner of dimension
+    'CUSTOMER_DIM',            -- name of dimension
+    'CUSTOMER_HIER',           -- name of hierarchy
+    'LVL_ALL_CUSTOMERS',       -- name of level
+    null);                     -- parent level
+end;
+/
+
+begin 
+  cwm2_olap_level.add_level_to_hierarchy (
+    user,                      -- owner of dimension
+    'CUSTOMER_DIM',            -- name of dimension
+    'CUSTOMER_HIER',           -- name of hierarchy
+    'LVL_CUSTOMERS_CONTINENT', -- name of level
+    'LVL_ALL_CUSTOMERS');      -- parent level
+end;
+/
+
+begin 
+  cwm2_olap_level.add_level_to_hierarchy (
+    user,                      -- owner of dimension
+    'CUSTOMER_DIM',            -- name of dimension
+    'CUSTOMER_HIER',           -- name of hierarchy
+    'LVL_CUSTOMERS_COUNTRY',   -- name of level
+    'LVL_CUSTOMERS_CONTINENT');-- parent level
+end;
+/
+
+
+-- Product
+
+begin 
+  cwm2_olap_level.add_level_to_hierarchy (
+    user,                      -- owner of dimension
+    'PRODUCT_DIM',             -- name of dimension
+    'PRODUCT_HIER',            -- name of hierarchy
+    'LVL_ALL_PRODUCTS',        -- name of level
+    null);                     -- parent level
+end;
+/
+
+begin 
+  cwm2_olap_level.add_level_to_hierarchy (
+    user,                      -- owner of dimension
+    'PRODUCT_DIM',             -- name of dimension
+    'PRODUCT_HIER',            -- name of hierarchy
+    'LVL_PRODUCT_CATEGORY',    -- name of level
+    'LVL_ALL_PRODUCTS');       -- parent level
+end;
+/
+
+
+-- Time
+
+begin 
+  cwm2_olap_level.add_level_to_hierarchy (
+    user,                      -- owner of dimension
+    'TIME_DIM',                -- name of dimension
+    'TIME_HIER',               -- name of hierarchy
+    'LVL_YEAR',                -- name of level
+    null);                     -- parent level
+end;
+/
+
+begin 
+  cwm2_olap_level.add_level_to_hierarchy (
+    user,                  -- owner of dimension
+    'TIME_DIM',            -- name of dimension
+    'TIME_HIER',           -- name of hierarchy
+    'LVL_QUARTER',         -- name of level
+    'LVL_YEAR');           -- parent level
+end;
+/
+
+begin 
+  cwm2_olap_level.add_level_to_hierarchy (
+    user,                  -- owner of dimension
+    'TIME_DIM',            -- name of dimension
+    'TIME_HIER',           -- name of hierarchy
+    'LVL_MONTH',           -- name of level
+    'LVL_QUARTER');        -- parent level
+end;
+/
+-----------------------------------------------------------------------------------
+-- Time
+
+begin 
+  cwm2_olap_level.add_level_to_hierarchy (
+    user,                      -- owner of dimension
+    'TIME_DIM',                -- name of dimension
+    'TIME_HIER',               -- name of hierarchy
+    'LVL_YEAR',                -- name of level
+    null);                     -- parent level
+end;
+/
+
+begin 
+  cwm2_olap_level.add_level_to_hierarchy (
+    user,                  -- owner of dimension
+    'TIME_DIM',            -- name of dimension
+    'TIME_HIER',           -- name of hierarchy
+    'LVL_QUARTER',         -- name of level
+    'LVL_YEAR');           -- parent level
+end;
+/
+
+begin 
+  cwm2_olap_level.add_level_to_hierarchy (
+    user,                  -- owner of dimension
+    'TIME_DIM',            -- name of dimension
+    'TIME_HIER',           -- name of hierarchy
+    'LVL_MONTH',           -- name of level
+    'LVL_QUARTER');        -- parent level
+end;
+/
+-----------------------------------------------------------------------------------------
+--- Specifying the dimension attributes
+begin 
+  cwm2_olap_dimension_attribute.create_dimension_attribute_2 (
+    user,                      -- owner of dimension
+    'TIME_DIM',                -- name of dimension
+    'End Date',                -- name of dimension attribute
+    'End Date',                -- display name
+    'End Date',                -- short description
+    'End Date',                -- description
+    1);                        -- use name as type
+end;
+/
+
+
+-----------------------------------------------------------------------------------------
+--- Specifying the level attributes: 
+begin 
+  cwm2_olap_level_attribute.create_level_attribute_2 (
+    user,                      -- owner of dimension
+    'TIME_DIM',                -- name of dimension
+    'End Date',                -- name of dimension attribute
+    'LVL_YEAR',                -- name of level
+    'End Date',                -- name of level attribute
+    'End Date',                -- display name
+    'End Date',                -- short description
+    'End Date',                -- description
+    1);                        -- use name as type
+end;
+/
+
+begin 
+  cwm2_olap_level_attribute.create_level_attribute_2 (
+    user,                      -- owner of dimension
+    'TIME_DIM',                -- name of dimension
+    'End Date',                -- name of dimension attribute
+    'LVL_QUARTER',             -- name of level
+    'End Date',                -- name of level attribute
+    'End Date',                -- display name
+    'End Date',                -- short description
+    'End Date',                -- description
+    1);                        -- use name as type
+end;
+/
+
+begin 
+  cwm2_olap_level_attribute.create_level_attribute_2 (
+    user,                      -- owner of dimension
+    'TIME_DIM',                -- name of dimension
+    'End Date',                -- name of dimension attribute
+    'LVL_MONTH',               -- name of level
+    'End Date',                -- name of level attribute
+    'End Date',                -- display name
+    'End Date',                -- short description
+    'End Date',                -- description
+    1);                        -- use name as type
+end;
+/
+-------------------------------------------------------------------------
+-------- Mapping the levels to columns in the dimension table. 
+-- Customer
+
+begin 
+  cwm2_olap_table_map.map_dimtbl_hierlevel(
+    user,                -- dimension owner
+    'CUSTOMER_DIM',      -- dimension name
+    'CUSTOMER_HIER',     -- name of hierarchy
+    'LVL_ALL_CUSTOMERS', -- name of level  
+    user,                -- owner of dimension table
+    'CUSTOMER',          -- name of table
+    'ID',                -- name of column
+    null                 -- name of parent column
+  );
+end;
+/
+
+begin 
+  cwm2_olap_table_map.map_dimtbl_hierlevel(
+    user,                      -- dimension owner
+    'CUSTOMER_DIM',            -- dimension name
+    'CUSTOMER_HIER',           -- name of hierarchy
+    'LVL_CUSTOMERS_CONTINENT', -- name of level  
+    user,                      -- owner of dimension table
+    'CUSTOMER',                -- name of table
+    'ID_CONTINENT',            -- name of column
+    'ID'                       -- name of parent column
+  );
+end;
+/
+
+begin 
+  cwm2_olap_table_map.map_dimtbl_hierlevel(
+    user,                      -- dimension owner
+    'CUSTOMER_DIM',            -- dimension name
+    'CUSTOMER_HIER',           -- name of hierarchy
+    'LVL_CUSTOMERS_COUNTRY',   -- name of level
+    user,                      -- owner of dimension table
+    'CUSTOMER',                -- name of table
+    'ID_COUNTRY',              -- name of column
+    'ID_CONTINENT'             -- name of parent column
+  );
+end;
+/
+
+-- Product
+
+begin 
+  cwm2_olap_table_map.map_dimtbl_hierlevel(
+    user,                -- dimension owner
+    'PRODUCT_DIM',       -- dimension name
+    'PRODUCT_HIER',      -- name of hierarchy
+    'LVL_ALL_PRODUCTS',  -- name of level  
+    user,                -- owner of dimension table
+    'PRODUCT',           -- name of table
+    'ID',                -- name of column
+    null                 -- name of parent column
+  );
+end;
+/
+
+begin 
+  cwm2_olap_table_map.map_dimtbl_hierlevel(
+    user,                    -- dimension owner
+    'PRODUCT_DIM',           -- dimension name
+    'PRODUCT_HIER',          -- name of hierarchy
+    'LVL_PRODUCT_CATEGORY',  -- name of level  
+    user,                    -- owner of dimension table
+    'PRODUCT',               -- name of table
+    'ID_CATEGORY',           -- name of column
+    'ID'                     -- name of parent column
+  );
+end;
+/
+
+-- Time
+
+begin 
+  cwm2_olap_table_map.map_dimtbl_hierlevel(
+    user,                -- dimension owner
+    'TIME_DIM',          -- dimension name
+    'TIME_HIER',         -- name of hierarchy
+    'LVL_YEAR',          -- name of level  
+    user,                -- owner of dimension table
+    'SELLING_MONTH',     -- name of table
+    'YR',                -- name of column
+    null                 -- name of parent column
+  );
+end;
+/
+
+begin 
+  cwm2_olap_table_map.map_dimtbl_hierlevel(
+    user,                -- dimension owner
+    'TIME_DIM',          -- dimension name
+    'TIME_HIER',         -- name of hierarchy
+    'LVL_QUARTER',       -- name of level  
+    user,                -- owner of dimension table
+    'SELLING_MONTH',     -- name of table
+    'ID_QUARTER',        -- name of column
+    'YR'                 -- name of parent column
+  );
+end;
+/
+
+begin 
+  cwm2_olap_table_map.map_dimtbl_hierlevel(
+    user,                -- dimension owner
+    'TIME_DIM',          -- dimension name
+    'TIME_HIER',         -- name of hierarchy
+    'LVL_MONTH',         -- name of level  
+    user,                -- owner of dimension table
+    'SELLING_MONTH',     -- name of table
+    'ID_MONTH',          -- name of column
+    'ID_QUARTER'         -- name of parent column
+  );
+end;
+/
+------------------------------------------------------------------------------------------
+--- Finally: creating the cube.
+begin 
+  cwm2_olap_cube.create_cube(
+    user,                  -- cube owner
+    'Test Cube',           -- name of cube
+    'Test Cube',           -- display name
+    'Test Cube',           -- short description
+    'Test Cube'            -- description
+  );
+end;
+/
+
+
+------------------------------------------------------------------------------------------
+-- CREARE MAP hierarchy
+begin 
+  cwm2_olap_table_map.map_dimtbl_hierlevelattr (
+    user,                -- dimension owner
+    'TIME_DIM',          -- name of dimension
+    'End Date',          -- name of dimension attribute
+    'TIME_HIER',         -- name of hierarchy
+    'LVL_MONTH',         -- name of level
+    'End Date',          -- name of level attribute
+    user,                -- owner of table
+    'SELLING_MONTH',     -- name of table
+    'END_OF_MONTH'       -- name of column
+);
+end;
+/
+
+begin 
+  cwm2_olap_table_map.map_dimtbl_hierlevelattr (
+    user,                -- dimension owner
+    'TIME_DIM',          -- name of dimension
+    'End Date',          -- name of dimension attribute
+    'TIME_HIER',         -- name of hierarchy
+    'LVL_QUARTER',       -- name of level
+    'End Date',          -- name of level attribute
+    user,                -- owner of table
+    'SELLING_MONTH',     -- name of table
+    'END_OF_QUARTER'     -- name of column
+);
+end;
+/
+
+begin 
+  cwm2_olap_table_map.map_dimtbl_hierlevelattr (
+    user,                -- dimension owner
+    'TIME_DIM',          -- name of dimension
+    'End Date',          -- name of dimension attribute
+    'TIME_HIER',         -- name of hierarchy
+    'LVL_YEAR',          -- name of level
+    'End Date',          -- name of level attribute
+    user,                -- owner of table
+    'SELLING_MONTH',     -- name of table
+    'END_OF_YEAR'        -- name of column
+);
+end;
+/
+--------------------------------------------------------------------------------
+--- Adding dimensions to cube: 
+begin 
+  cwm2_olap_cube.add_dimension_to_cube (
+    user,                -- owner of cube
+    'Test Cube',         -- name of cube
+    user,                -- owner of dimension
+    'CUSTOMER_DIM'       -- name of dimension
+  );
+end;
+/
+
+begin 
+  cwm2_olap_cube.add_dimension_to_cube (
+    user,                -- owner of cube
+    'Test Cube',         -- name of cube
+    user,                -- owner of dimension
+    'PRODUCT_DIM'        -- name of dimension
+  );
+end;
+/
+
+begin 
+  cwm2_olap_cube.add_dimension_to_cube (
+    user,                -- owner of cube
+    'Test Cube',         -- name of cube
+    user,                -- owner of dimension
+    'TIME_DIM'           -- name of dimension
+  );
+end;
+/
+------------------------------------------------------------------------------------
+--- Creating the measure: 
+begin 
+  cwm2_olap_measure.create_measure (
+    user,                -- owner of cube
+    'Test Cube',         -- name of cube
+    'sold items',        -- name of measure
+    'sold items',        -- display name
+    'sold items',        -- short description
+    'sold items'         -- description
+  );
+end;
+/
+
+-------------------------------------------------------------------------------------
+--- Creating the join relationship between the fact table and the dimension tables: 
+begin 
+  cwm2_olap_table_map.map_facttbl_levelkey (
+    user,                         -- owner of cube
+    'Test Cube',                  -- name of cube
+    user,                         -- owner of fact table
+    'ITEM_SOLD',                  -- name of fact table
+    'LOWESTLEVEL',                -- storetype
+    'DIM:' || user || '.CUSTOMER_DIM/HIER:CUSTOMER_HIER/LVL:LVL_CUSTOMERS_COUNTRY/COL:ID_CUSTOMER;' ||
+    'DIM:' || user || '.PRODUCT_DIM/HIER:PRODUCT_HIER/LVL:LVL_PRODUCT_CATEGORY/COL:ID_PRODUCT;'     ||
+    'DIM:' || user || '.TIME_DIM/HIER:TIME_HIER/LVL:LVL_MONTH/COL:ID_MONTH;'
+  );
+end;
+/
+--------------------------------------------------------------------------------------
+--- CREATE FACT MEASURE 
+begin 
+  cwm2_olap_table_map.map_facttbl_measure (
+    user,                         -- owner of cube
+    'Test Cube',                  -- name of cube
+    'sold items',                 -- name of measure
+    user,                         -- owner of fact table
+    'ITEM_SOLD',                  -- name of fact table
+    'QTY',                        -- name of column
+    'DIM:' || user || '.CUSTOMER_DIM/HIER:CUSTOMER_HIER/LVL:LVL_CUSTOMERS_COUNTRY/COL:ID_CUSTOMER;' ||
+    'DIM:' || user || '.PRODUCT_DIM/HIER:PRODUCT_HIER/LVL:LVL_PRODUCT_CATEGORY/COL:ID_PRODUCT;'     ||
+    'DIM:' || user || '.TIME_DIM/HIER:TIME_HIER/LVL:LVL_MONTH/COL:ID_MONTH;'
+  );
+end;
+/
+
+----------------------------------------------------------------------------------------
+---- Validating the cube: 
+begin 
+  cwm2_olap_validate.validate_cube (
+    user,                 -- owner of cube
+    'Test Cube'           -- name of cube
+  );
+end;
+/
+
+----------------------------------------------------------------------------------------
+--- Cleaning up...
+
+begin 
+  cwm2_olap_dimension.drop_dimension(
+    user,              -- dimension owner
+    'TIME_DIM'           -- dimension name
+  );
+end;
+/
+
+begin 
+  cwm2_olap_dimension.drop_dimension(
+    user,              -- dimension owner
+    'PRODUCT_DIM'        -- dimension name
+  );
+end;
+/
+
+begin 
+  cwm2_olap_dimension.drop_dimension(
+    user,              -- dimension owner
+    'CUSTOMER_DIM'       -- dimension name
+  );
+end;
+/
+
+
+---------------------------------------------------------------------------------------------
+-- create aw anlytical worplace
+execute dbms_aw.execute ('report w 40 name');
+
+execute OLAP_ViewGenerator.createAWViews (user,'report w 40 name');
+
+execute OLAP_ViewGenerator.createCubeView (user,'report w 40 name','Test Cube') ;
+
+declare
+	strResult varchar2(4000);
+begin
+   strResult := OLAP_ViewGenerator.getSQLText (
+            user,
+            'report w 40 name',
+            'Test Cube',   -- CUBE or DIMENSION
+            'Test Cube',   -- Name of cube or dimension
+            'MODEL',   -- MODEL or COMMENT
+            'aw1view'
+            ) ;
+end;
+/

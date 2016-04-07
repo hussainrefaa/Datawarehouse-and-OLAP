@@ -1,0 +1,15 @@
+-- Author: 	Hussain refaa
+-- creation Date: 	2008
+-- Last Updated: 	0000-00-00
+-- Control Number:	xxxx-xxxx-xxxx-xxxx
+-- Version: 	0.0
+-- Phone : +4915775148443
+-- Email: hus244@gmail.com
+
+SCHEMAS = (OLTP)
+include =table:"IN ('ORDERS')"
+query=OLTP.ORDERS:"WHERE purchase_date BETWEEN to_date('01-dec-2004','dd-mon-yyyy')
+AND to_date('31-dec-2004','dd-mon-yyyy')"
+DIRECTORY=DATA_FILE_DIR 
+DUMPFILE = exp1.dmp
+LOGFILE = LOG_FILE_DIR:exporders2004.log

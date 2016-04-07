@@ -1,0 +1,43 @@
+-- Author: 	Hussain refaa
+-- creation Date: 	2008
+-- Last Updated: 	0000-00-00
+-- Control Number:	xxxx-xxxx-xxxx-xxxx
+-- Version: 	0.0
+-- Phone : +4915775148443
+-- Email: hus244@gmail.com
+
+--- Loading the Warehouse Using Data pump
+
+-- Spacifying the Loation of the datafile and fies 
+-- for data pump toos
+
+SQL> CREATE OR REPLACE DIRECTORY data_file_dir AS 'C:\datafiles\';
+SQL> CREATE OR REPLACE DIRECTORY log_file_dir AS 'C:\logfiles\';
+
+SQL> grant read, write on directory data_file_dir to Warhouse_user ;
+
+--- to find the directories defined
+SQL> select * from dba_directories;
+
+-- Suppose we want to export all of the OLTP ORDERS data for
+-- 2004 from our OLTP database and move it to our warehouse database
+
+SQL> grant create any DIRECTORY  to oltp;
+
+--- create this file name : expdp_par.txt
+SCHEMAS = (OLTP)
+include =table:"IN ('ORDERS')"
+query=OLTP.ORDERS:"WHERE purchase_date BETWEEN to_date('01-dec-2004','dd-mon-yyyy')
+AND to_date('31-dec-2004','dd-mon-yyyy')"
+DIRECTORY=data_file_dir 
+DUMPFILE = exp1.dmp
+LOGFILE = log_file_dir:exporders2004.log
+
+--- export data to external file
+c:\> expdp oltp/oltp@ASM parfile = c:\expdp_par.txt
+
+--- now import data from external file
+C:\> impdp Warhouse_user/Warhouse_user@asm DIRECTORY = data_file_dir
+     DUMPFILE=expdat.dmp
+     LOGFILE=log_file_dir:imporders2004.log
+     REMAP_TABLESPACE=users:stage REMAP_SCHEMA=oltp:Warhouse_user

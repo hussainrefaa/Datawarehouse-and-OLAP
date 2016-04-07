@@ -1,0 +1,1 @@
+sqlplus user1/user1@orcl @PurchaseItem_pkg.sql>out.txt

@@ -1,0 +1,162 @@
+-- Author: 	Hussain refaa
+-- creation Date: 	2008
+-- Last Updated: 	0000-00-00
+-- Control Number:	xxxx-xxxx-xxxx-xxxx
+-- Version: 	0.0
+-- Phone : +4915775148443
+-- Email: hus244@gmail.com
+
+-- LOAD PRODUCT DIMENSION
+load data
+infile 'product.dat' append
+into table product
+fields terminated by ',' optionally enclosed by "'"
+(product_name,
+ catagory,
+ cost_price,
+ sell_price,
+ weight,
+ shipping_change,
+ manufacturer,
+ supplier)
+
+---------------------------------------------------------------------------
+---------------------------------------------------------------------------
+---------------------------------------------------------------------------
+--- SQL*Loader Direct Path Load of a Single Partition example
+
+--- Step1: Create a Tablespace
+
+SQL> create tablespace purchases_jan2005
+      datafile 'c:\datafile\purchases_jan2005.dbf'
+     size 5M 
+     reuse autoextend on
+     default storage
+       (intitial 64k next 64k pctincrease 0 maxextents unlimited);
+
+--- Step2: Add a Partition
+SQL> ALTER table purchases 
+           add partition purchases_jan2005
+           values less than (to_date('01-02-2005','dd-mm-yyyy'))
+           pctfree 0 pctused 99 
+           strorage (initial 64k next 64k pctincrease 0) 
+           tablespace purchases-jan2005;
+
+--- step 3: Disable all referential integrity constraint and triger
+SQL> alter table purchases disable constriant fk_time;
+SQL> alter table purchases disable constraint fk_product_id;
+SQL> alter table purchases disable constraint fk_customer_id;
+
+--- to determine if constraint enabled or disabled 
+SQL> select table_name, constraint_name, status
+     from user_constraints 
+     where table_name = 'PURCHASES';
+
+--- step 4: Load the Data
+--- this control file to load new data into a single partition
+
+options (DIRECT=TRUE)
+unrecoverable load data 
+infile 'purchases.dat' BADFILE 'purchases.bad'
+append 
+into table purchases 
+partition (purchases_jan2005)
+(product_id        position (1-6) char,
+ time_key          position (7-17) date "DD-MON-YYYY",
+ customer_id       position (18-25) char,
+ ship_date         position (26-36) date  "DD-MM-YYYY",
+ purchase_price    position (37-43) decimal external,
+ shipping_charge   position (44-49) integer external,
+ today_special_offer position (50) char)
+
+
+---- sqlldr command
+sqlldr USERID=easydw/easydw CONTROL=purchases.ctl 
+LOG=purchases.log DIRECT=TRUE SKIP_INDEX_MAINTENANCE=TRUE
+
+
+--- step 5: inspect the log
+
+--- step 6: reanable all Constraints and triggers, rebuild indexes
+
+
+---------------------------------------------------------------------------
+---------------------------------------------------------------------------
+---------------------------------------------------------------------------
+--- SQL*Loader Parallel Direct path Load
+
+--- Step 1: Disable all constraints and triggers
+
+--- Step 2: Drop all indexes
+
+--- Step 3: load the Data
+
+sqlldr userid=easydw/easydw CONTROL=jan.ctl DIRECT=TRUE PARALLEL=TRUE
+sqlldr userid=easydw/easydw CONTROL=feb.ctl DIRECT=TRUE PARALLEL=TRUE
+sqlldr userid=easydw/easydw CONTROL=mar.ctl DIRECT=TRUE PARALLEL=TRUE
+
+--- Step 4: Inspect the log
+
+--- Step 5: Reenable All Constraints and triggers, recreate all indexes
+
+---------------------------------------------------------------------------
+---------------------------------------------------------------------------
+---------------------------------------------------------------------------
+--- Transformations using SQL*Loader
+
+LOAD DATA 
+INFILE 'product.dat' append
+into table product when product_id != BLANKS
+fields terminated by ',' optionally enclosed by "'"
+(product_id "upper(:product_id)",
+product_name,
+category,
+cost_price,
+sell_price,
+weight,
+shipping_charge,
+manufacturer,
+supplier)
+
+--- command file
+sqlldr userid=easydw/easydw CONTROL=product.ctl 
+log=product.log bad=product.bad discard=product.dis direct=true
+
+
+
+----- SQL*Loader Postload Operations
+-- step 1: inspect the Logs
+-- step 2: process the load exceptions
+-- step 3: reenable data integrity constraints
+-- step 4: handle constraint violations
+
+-- to find the rows with bad data, you can create an exception table. create
+   the table named "exceptions" by running the script UTLEXCPT.SQl
+   When enableing the constraint, list the table name the exceptions should be
+   written to
+
+SQL> alterr table purchases 
+     enable constraint fk_product_id 
+     exceptions into exceptions;
+
+SQL> select * from  exceptions;
+
+--- to find out whiche rows have violated referential integrity
+SQL> select * from purchases where rowid in (select row_id from exceptions);
+
+
+--- step 5: Enable Constraints without validation
+SQL> ALTER TABLE purchases ENABLE NOVALIDATE CONSTRAINT fk_product_id;
+SQL> ALTER TABLE purchases MODIFY CONSTRAINT fk_product_id RELY;
+
+
+--- check for unusable indexes
+SQL> select index_name, status from user_indexes;
+
+SQL> select index_name, partition_name, status from 
+     user_ind_partitions where status != 'VALID';
+
+--- Rebuild unusable indexes
+SQL> alter index purchase_time_index
+     rebuild partition purchases_apr2004;
+

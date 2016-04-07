@@ -1,0 +1,1074 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<schemester_diagram version="1.1">
+  <property name="name"><![CDATA[New Model]]></property>
+  <property name="comment"><![CDATA[]]></property>
+  <diagram_style>
+    <property name="font_name">Tahoma</property>
+    <property name="font_size">7</property>
+    <property name="font_colour">clBlack</property>
+    <property name="header_font_name">Tahoma</property>
+    <property name="header_font_size">7</property>
+    <property name="header_font_colour">clWhite</property>
+    <property name="header_band_colour">clGray</property>
+    <property name="detail_band_colour">clWhite</property>
+    <property name="background_colour">clWhite</property>
+    <property name="cascade_del_Colour">clRed</property>
+    <property name="set_null_del_colour">clMaroon</property>
+    <property name="no_action_colour">clBlack</property>
+    <property name="show_link_description">Y</property>
+    <property name="show_link_name">N</property>
+    <property name="show_link_tablename">Y</property>
+    <property name="show_link_columns">Y</property>
+    <property name="show_owner_in_title">N</property>
+    <property name="link_font_name">Tahoma</property>
+    <property name="link_font_size">7</property>
+    <property name="link_font_colour">clGreen</property>
+    <property name="low_graphics_1">N</property>
+    <property name="two_tone_header">N</property>
+  </diagram_style>
+  <tables>
+    <table>
+      <property name="owner">MOF</property>
+      <property name="name">VENDORS</property>
+      <property name="comment"><![CDATA[]]></property>
+      <property name="is_virtual">Y</property>
+      <property name="left">179</property>
+      <property name="top">340</property>
+      <property name="width">362</property>
+      <property name="height">474</property>
+      <property name="show_only_key_cols">N</property>
+      <property name="reload_from_database">N</property>
+      <property name="hide_data_types">N</property>
+      <property name="hide_comments">N</property>
+      <property name="column_sort_method">creation</property>
+      <columns>
+        <column>
+          <property name="name">VENDOR_ID</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">NUMBER</property>
+          <property name="data_length">22</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">N</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">1</property>
+        </column>
+        <column>
+          <property name="name">COMPANY_NAME_AR</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">VARCHAR2</property>
+          <property name="data_length">1024</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">N</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">2</property>
+        </column>
+        <column>
+          <property name="name">COMPANY_NAME_EN</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">VARCHAR2</property>
+          <property name="data_length">1024</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">N</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">3</property>
+        </column>
+        <column>
+          <property name="name">TITLE_AR</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">VARCHAR2</property>
+          <property name="data_length">32</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">N</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">4</property>
+        </column>
+        <column>
+          <property name="name">TITLE_EN</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">VARCHAR2</property>
+          <property name="data_length">32</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">N</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">5</property>
+        </column>
+        <column>
+          <property name="name">CONTACT_FIRST_NAME_AR</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">VARCHAR2</property>
+          <property name="data_length">128</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">N</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">6</property>
+        </column>
+        <column>
+          <property name="name">CONTACT_FIRST_NAME_EN</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">VARCHAR2</property>
+          <property name="data_length">128</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">N</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">7</property>
+        </column>
+        <column>
+          <property name="name">CONTACT_MI_AR</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">VARCHAR2</property>
+          <property name="data_length">128</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">N</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">8</property>
+        </column>
+        <column>
+          <property name="name">CONTACT_MI_EN</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">VARCHAR2</property>
+          <property name="data_length">128</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">N</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">9</property>
+        </column>
+        <column>
+          <property name="name">CONTACT_LAST_NAME_AR</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">VARCHAR2</property>
+          <property name="data_length">128</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">N</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">10</property>
+        </column>
+        <column>
+          <property name="name">CONTACT_LAST_NAME_EN</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">VARCHAR2</property>
+          <property name="data_length">128</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">N</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">11</property>
+        </column>
+        <column>
+          <property name="name">ADDRESS_AR</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">VARCHAR2</property>
+          <property name="data_length">4000</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">N</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">12</property>
+        </column>
+        <column>
+          <property name="name">ADDRESS_EN</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">VARCHAR2</property>
+          <property name="data_length">4000</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">N</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">13</property>
+        </column>
+        <column>
+          <property name="name">ALT_CONTACT_AR</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">VARCHAR2</property>
+          <property name="data_length">1024</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">N</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">14</property>
+        </column>
+        <column>
+          <property name="name">ALT_CONTACT_EN</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">VARCHAR2</property>
+          <property name="data_length">1024</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">N</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">15</property>
+        </column>
+        <column>
+          <property name="name">PHONE</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">VARCHAR2</property>
+          <property name="data_length">256</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">16</property>
+        </column>
+        <column>
+          <property name="name">FAX</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">VARCHAR2</property>
+          <property name="data_length">256</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">17</property>
+        </column>
+        <column>
+          <property name="name">EMAIL</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">VARCHAR2</property>
+          <property name="data_length">128</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">18</property>
+        </column>
+        <column>
+          <property name="name">WEBSITE</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">VARCHAR2</property>
+          <property name="data_length">128</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">19</property>
+        </column>
+        <column>
+          <property name="name">PRINT_ONCHECK_AS</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">VARCHAR2</property>
+          <property name="data_length">512</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">20</property>
+        </column>
+        <column>
+          <property name="name">IS_ACTIVE</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">NUMBER</property>
+          <property name="data_length">22</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">21</property>
+        </column>
+        <column>
+          <property name="name">BANK_ID</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">NUMBER</property>
+          <property name="data_length">22</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">22</property>
+        </column>
+        <column>
+          <property name="name">ACCOUNT_NUMBER</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">VARCHAR2</property>
+          <property name="data_length">512</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">23</property>
+        </column>
+        <column>
+          <property name="name">ACCOUNT_ID</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">NUMBER</property>
+          <property name="data_length">22</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">24</property>
+        </column>
+        <column>
+          <property name="name">VENDOR_SECTOR</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">NUMBER</property>
+          <property name="data_length">22</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">N</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">25</property>
+        </column>
+        <column>
+          <property name="name">RATING</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">NUMBER</property>
+          <property name="data_length">22</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">26</property>
+        </column>
+        <column>
+          <property name="name">VENDOR_CODE</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">VARCHAR2</property>
+          <property name="data_length">100</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">27</property>
+        </column>
+        <column>
+          <property name="name">NOTE_EN</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">VARCHAR2</property>
+          <property name="data_length">1000</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">28</property>
+        </column>
+        <column>
+          <property name="name">NOTE_AR</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">VARCHAR2</property>
+          <property name="data_length">1000</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">29</property>
+        </column>
+      </columns>
+      <primary_keys>
+        <primary_key>
+          <property name="name">PK_VENDORS</property>
+          <property name="is_virtual">N</property>
+          <columns>
+            <property name="column">VENDOR_ID</property>
+          </columns>
+        </primary_key>
+      </primary_keys>
+      <unique_keys>
+      </unique_keys>
+      <foreign_keys>
+        <foreign_key>
+          <property name="name">FK_VENDORS_ACCOUNT_CHART</property>
+          <property name="is_virtual">N</property>
+          <property name="ref_table_owner">OLAP</property>
+          <property name="ref_table_name">ACCOUNT_CHART</property>
+          <property name="on_delete">NO ACTION</property>
+          <columns>
+            <property name="column">ACCOUNT_ID</property>
+            <property name="column">ACCOUNT_ID</property>
+            <property name="column">ACCOUNT_ID</property>
+            <property name="column">ACCOUNT_ID</property>
+          </columns>
+          <ref_columns>
+            <property name="ref_column">ACCOUNT_ID</property>
+            <property name="ref_column">ACCOUNT_ID</property>
+            <property name="ref_column">ACCOUNT_ID</property>
+            <property name="ref_column">ACCOUNT_ID</property>
+          </ref_columns>
+        </foreign_key>
+        <foreign_key>
+          <property name="name">FK_VENDORS_BANK</property>
+          <property name="is_virtual">N</property>
+          <property name="ref_table_owner">OLAP</property>
+          <property name="ref_table_name">BANK</property>
+          <property name="on_delete">NO ACTION</property>
+          <columns>
+            <property name="column">BANK_ID</property>
+            <property name="column">BANK_ID</property>
+            <property name="column">BANK_ID</property>
+            <property name="column">BANK_ID</property>
+          </columns>
+          <ref_columns>
+            <property name="ref_column">BANK_ID</property>
+            <property name="ref_column">BANK_ID</property>
+            <property name="ref_column">BANK_ID</property>
+            <property name="ref_column">BANK_ID</property>
+          </ref_columns>
+        </foreign_key>
+      </foreign_keys>
+      <check_constraints>
+      </check_constraints>
+      <indexes>
+        <index>
+          <property name="name">PK_VENDORS</property>
+          <property name="owner">MOF</property>
+          <property name="type">UNIQUE</property>
+          <property name="table_name">VENDORS</property>
+          <property name="table_owner">MOF</property>
+          <columns>
+            <property name="column">VENDOR_ID</property>
+          </columns>
+        </index>
+      </indexes>
+    </table>
+    <table>
+      <property name="owner">MOF</property>
+      <property name="name">ITEMS</property>
+      <property name="comment"><![CDATA[]]></property>
+      <property name="is_virtual">Y</property>
+      <property name="left">616</property>
+      <property name="top">162</property>
+      <property name="width">291</property>
+      <property name="height">332</property>
+      <property name="show_only_key_cols">N</property>
+      <property name="reload_from_database">N</property>
+      <property name="hide_data_types">N</property>
+      <property name="hide_comments">N</property>
+      <property name="column_sort_method">creation</property>
+      <columns>
+        <column>
+          <property name="name">ITEM_ID</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">NUMBER</property>
+          <property name="data_length">22</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">N</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">1</property>
+        </column>
+        <column>
+          <property name="name">ITEM_CODE</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">VARCHAR2</property>
+          <property name="data_length">100</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">N</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">2</property>
+        </column>
+        <column>
+          <property name="name">ITEM_NAME_AR</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">VARCHAR2</property>
+          <property name="data_length">256</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">3</property>
+        </column>
+        <column>
+          <property name="name">ITEM_NAME_EN</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">VARCHAR2</property>
+          <property name="data_length">256</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">4</property>
+        </column>
+        <column>
+          <property name="name">ITEM_DESCRIPTION_AR</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">VARCHAR2</property>
+          <property name="data_length">4000</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">5</property>
+        </column>
+        <column>
+          <property name="name">ITEM_DESCRIPTION_EN</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">VARCHAR2</property>
+          <property name="data_length">4000</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">6</property>
+        </column>
+        <column>
+          <property name="name">GROUP_ID</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">NUMBER</property>
+          <property name="data_length">22</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">7</property>
+        </column>
+        <column>
+          <property name="name">DIMENSIONS</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">VARCHAR2</property>
+          <property name="data_length">100</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">8</property>
+        </column>
+        <column>
+          <property name="name">LOCATION</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">VARCHAR2</property>
+          <property name="data_length">100</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">9</property>
+        </column>
+        <column>
+          <property name="name">MANUFACTURER</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">VARCHAR2</property>
+          <property name="data_length">100</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">10</property>
+        </column>
+        <column>
+          <property name="name">ORIGIN</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">VARCHAR2</property>
+          <property name="data_length">100</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">11</property>
+        </column>
+        <column>
+          <property name="name">MODEL</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">VARCHAR2</property>
+          <property name="data_length">100</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">12</property>
+        </column>
+        <column>
+          <property name="name">UNIT_ID</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">NUMBER</property>
+          <property name="data_length">22</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">13</property>
+        </column>
+        <column>
+          <property name="name">BARCODE</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">VARCHAR2</property>
+          <property name="data_length">100</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">14</property>
+        </column>
+        <column>
+          <property name="name">MAX_LEVEL</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">NUMBER</property>
+          <property name="data_length">22</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">15</property>
+        </column>
+        <column>
+          <property name="name">REORDER_LEVEL</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">NUMBER</property>
+          <property name="data_length">22</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">16</property>
+        </column>
+        <column>
+          <property name="name">MIN_LEVEL</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">NUMBER</property>
+          <property name="data_length">22</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">17</property>
+        </column>
+        <column>
+          <property name="name">ITEM_KIND</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">NUMBER</property>
+          <property name="data_length">22</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">18</property>
+        </column>
+        <column>
+          <property name="name">ACCOUNT_ID</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">NUMBER</property>
+          <property name="data_length">22</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">19</property>
+        </column>
+        <column>
+          <property name="name">TAX</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">FLOAT</property>
+          <property name="data_length">22</property>
+          <property name="data_precision">126</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">20</property>
+        </column>
+      </columns>
+      <primary_keys>
+        <primary_key>
+          <property name="name">PK_ITEMS</property>
+          <property name="is_virtual">N</property>
+          <columns>
+            <property name="column">ITEM_ID</property>
+          </columns>
+        </primary_key>
+      </primary_keys>
+      <unique_keys>
+      </unique_keys>
+      <foreign_keys>
+        <foreign_key>
+          <property name="name">FK_ITEMS_ACCOUNT_CHART</property>
+          <property name="is_virtual">N</property>
+          <property name="ref_table_owner">OLAP</property>
+          <property name="ref_table_name">ACCOUNT_CHART</property>
+          <property name="on_delete">NO ACTION</property>
+          <columns>
+            <property name="column">ACCOUNT_ID</property>
+            <property name="column">ACCOUNT_ID</property>
+            <property name="column">ACCOUNT_ID</property>
+            <property name="column">ACCOUNT_ID</property>
+          </columns>
+          <ref_columns>
+            <property name="ref_column">ACCOUNT_ID</property>
+            <property name="ref_column">ACCOUNT_ID</property>
+            <property name="ref_column">ACCOUNT_ID</property>
+            <property name="ref_column">ACCOUNT_ID</property>
+          </ref_columns>
+        </foreign_key>
+        <foreign_key>
+          <property name="name">FK_ITEMS_ITEM_GROUP</property>
+          <property name="is_virtual">N</property>
+          <property name="ref_table_owner">OLAP</property>
+          <property name="ref_table_name">ITEM_GROUPS</property>
+          <property name="on_delete">NO ACTION</property>
+          <columns>
+            <property name="column">GROUP_ID</property>
+            <property name="column">GROUP_ID</property>
+            <property name="column">GROUP_ID</property>
+            <property name="column">GROUP_ID</property>
+          </columns>
+          <ref_columns>
+            <property name="ref_column">GROUP_ID</property>
+            <property name="ref_column">GROUP_ID</property>
+            <property name="ref_column">GROUP_ID</property>
+            <property name="ref_column">GROUP_ID</property>
+          </ref_columns>
+        </foreign_key>
+        <foreign_key>
+          <property name="name">FK_ITEMS_UNITS</property>
+          <property name="is_virtual">N</property>
+          <property name="ref_table_owner">OLAP</property>
+          <property name="ref_table_name">UNITS</property>
+          <property name="on_delete">NO ACTION</property>
+          <columns>
+            <property name="column">UNIT_ID</property>
+            <property name="column">UNIT_ID</property>
+            <property name="column">UNIT_ID</property>
+            <property name="column">UNIT_ID</property>
+          </columns>
+          <ref_columns>
+            <property name="ref_column">UNIT_ID</property>
+            <property name="ref_column">UNIT_ID</property>
+            <property name="ref_column">UNIT_ID</property>
+            <property name="ref_column">UNIT_ID</property>
+          </ref_columns>
+        </foreign_key>
+      </foreign_keys>
+      <check_constraints>
+      </check_constraints>
+      <indexes>
+        <index>
+          <property name="name">PK_ITEMS</property>
+          <property name="owner">MOF</property>
+          <property name="type">UNIQUE</property>
+          <property name="table_name">ITEMS</property>
+          <property name="table_owner">MOF</property>
+          <columns>
+            <property name="column">ITEM_ID</property>
+          </columns>
+        </index>
+      </indexes>
+    </table>
+    <table>
+      <property name="owner">MOF</property>
+      <property name="name">DATE_TABLE</property>
+      <property name="comment"><![CDATA[]]></property>
+      <property name="is_virtual">Y</property>
+      <property name="left">15</property>
+      <property name="top">152</property>
+      <property name="width">226</property>
+      <property name="height">144</property>
+      <property name="show_only_key_cols">N</property>
+      <property name="reload_from_database">N</property>
+      <property name="hide_data_types">N</property>
+      <property name="hide_comments">N</property>
+      <property name="column_sort_method">creation</property>
+      <columns>
+        <column>
+          <property name="name">ID_DATE</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">NUMBER</property>
+          <property name="data_length">22</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">N</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">1</property>
+        </column>
+        <column>
+          <property name="name">YR</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">NUMBER</property>
+          <property name="data_length">22</property>
+          <property name="data_precision">4</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">2</property>
+        </column>
+        <column>
+          <property name="name">MTH</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">NUMBER</property>
+          <property name="data_length">22</property>
+          <property name="data_precision">12</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">3</property>
+        </column>
+        <column>
+          <property name="name">ID_QUARTER</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">NUMBER</property>
+          <property name="data_length">22</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">4</property>
+        </column>
+        <column>
+          <property name="name">ID_MONTH</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">NUMBER</property>
+          <property name="data_length">22</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">5</property>
+        </column>
+        <column>
+          <property name="name">END_OF_MONTH</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">DATE</property>
+          <property name="data_length">7</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">6</property>
+        </column>
+        <column>
+          <property name="name">END_OF_QUARTER</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">DATE</property>
+          <property name="data_length">7</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">7</property>
+        </column>
+        <column>
+          <property name="name">END_OF_YEAR</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">DATE</property>
+          <property name="data_length">7</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">8</property>
+        </column>
+      </columns>
+      <primary_keys>
+        <primary_key>
+          <property name="name">SYS_C006424</property>
+          <property name="is_virtual">N</property>
+          <columns>
+            <property name="column">ID_DATE</property>
+          </columns>
+        </primary_key>
+      </primary_keys>
+      <unique_keys>
+      </unique_keys>
+      <foreign_keys>
+      </foreign_keys>
+      <check_constraints>
+      </check_constraints>
+      <indexes>
+        <index>
+          <property name="name">SYS_C006424</property>
+          <property name="owner">MOF</property>
+          <property name="type">UNIQUE</property>
+          <property name="table_name">DATE_TABLE</property>
+          <property name="table_owner">MOF</property>
+          <columns>
+            <property name="column">ID_DATE</property>
+          </columns>
+        </index>
+      </indexes>
+    </table>
+    <table>
+      <property name="owner">MOF</property>
+      <property name="name">ITEM_PURCHASE</property>
+      <property name="comment"><![CDATA[]]></property>
+      <property name="is_virtual">Y</property>
+      <property name="left">356</property>
+      <property name="top">108</property>
+      <property name="width">166</property>
+      <property name="height">96</property>
+      <property name="show_only_key_cols">N</property>
+      <property name="reload_from_database">N</property>
+      <property name="hide_data_types">N</property>
+      <property name="hide_comments">N</property>
+      <property name="column_sort_method">creation</property>
+      <columns>
+        <column>
+          <property name="name">AMOUNT</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">NUMBER</property>
+          <property name="data_length">22</property>
+          <property name="data_precision">4</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">1</property>
+        </column>
+        <column>
+          <property name="name">QUANTITY</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">NUMBER</property>
+          <property name="data_length">22</property>
+          <property name="data_precision">4</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">2</property>
+        </column>
+        <column>
+          <property name="name">VENDOR_ID</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">NUMBER</property>
+          <property name="data_length">22</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">3</property>
+        </column>
+        <column>
+          <property name="name">ITEM_ID</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">NUMBER</property>
+          <property name="data_length">22</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">4</property>
+        </column>
+        <column>
+          <property name="name">ID_DATE</property>
+          <property name="is_virtual">Y</property>
+          <property name="data_type">NUMBER</property>
+          <property name="data_length">22</property>
+          <property name="data_precision">0</property>
+          <property name="data_scale">0</property>
+          <property name="is_nullable">Y</property>
+          <property name="default_value"><![CDATA[]]></property>
+          <property name="comment"><![CDATA[]]></property>
+          <property name="sequence">5</property>
+        </column>
+      </columns>
+      <primary_keys>
+      </primary_keys>
+      <unique_keys>
+      </unique_keys>
+      <foreign_keys>
+        <foreign_key>
+          <property name="name">SYS_C006425</property>
+          <property name="is_virtual">N</property>
+          <property name="ref_table_owner">MOF</property>
+          <property name="ref_table_name">VENDORS</property>
+          <property name="on_delete">NO ACTION</property>
+          <columns>
+            <property name="column">VENDOR_ID</property>
+          </columns>
+          <ref_columns>
+            <property name="ref_column">VENDOR_ID</property>
+          </ref_columns>
+        </foreign_key>
+        <foreign_key>
+          <property name="name">SYS_C006426</property>
+          <property name="is_virtual">N</property>
+          <property name="ref_table_owner">MOF</property>
+          <property name="ref_table_name">ITEMS</property>
+          <property name="on_delete">NO ACTION</property>
+          <columns>
+            <property name="column">ITEM_ID</property>
+          </columns>
+          <ref_columns>
+            <property name="ref_column">ITEM_ID</property>
+          </ref_columns>
+        </foreign_key>
+        <foreign_key>
+          <property name="name">SYS_C006427</property>
+          <property name="is_virtual">N</property>
+          <property name="ref_table_owner">MOF</property>
+          <property name="ref_table_name">DATE_TABLE</property>
+          <property name="on_delete">NO ACTION</property>
+          <columns>
+            <property name="column">ID_DATE</property>
+          </columns>
+          <ref_columns>
+            <property name="ref_column">ID_DATE</property>
+          </ref_columns>
+        </foreign_key>
+      </foreign_keys>
+      <check_constraints>
+      </check_constraints>
+      <indexes>
+      </indexes>
+    </table>
+  </tables>
+  <object_tables>
+  </object_tables>
+  <types>
+  </types>
+  <notes>
+  </notes>
+</schemester_diagram>

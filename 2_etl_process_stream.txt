@@ -1,0 +1,341 @@
+
+-- Author: 	Hussain refaa
+-- creation Date: 	2008
+-- Last Updated: 	0000-00-00
+-- Control Number:	xxxx-xxxx-xxxx-xxxx
+-- Version: 	0.0
+-- Phone : +4915775148443
+-- Email: hus244@gmail.com
+SQL> connect sys/oracle as sysdba
+
+
+SQL> create user oltp IDENTIFIED by oltp 
+     default tablespace users
+     temporary tablespace temp 
+     quota unlimited on users;
+
+
+SQL> grant connect, resource to oltp;
+
+SQL> create user oltpsubscr IDENTIFIED by oltpsubscr
+     default tablespace users
+     temporary tablespace temp 
+     quota unlimited on users;
+
+
+SQL> grant connect, resource to oltpsubscr;
+
+
+SQL> create user oltppub IDENTIFIED by oltppub
+     quota unlimited on system 
+     quota unlimited on sysaux;
+
+SQL> grant create session to oltppub;
+SQL> grant create table to oltppub;
+SQL> grant create tablespace to oltppub;
+SQL> grant unlimited tablespace to oltppub;
+SQL> grant select_catalog_role to oltppub;
+SQL> grant execute_catalog_role to oltppub;
+SQL> grant create sequence to oltppub;
+SQL> grant connect, resource, dba to oltppub;
+
+
+SQL> create table oltp.orders
+( 
+ order_id          varchar2(8)  NOT NULL,
+ product_id        varchar2(8)  NOT null,
+ customer_id       varchar2(10) not null,
+ purchase_date     date         not null,
+ purchase_time     number(4,0)  not null,
+ purchase_price    number(6,2)  not null, 
+ shipping_charge   number(5,2)  not null,
+ today_special_offer  varchar2(1) not null,
+ sales_person_id      varchar2(20) not null,
+ payment_method       varchar2(10) not null
+)
+tablespace users;
+
+
+SQL> conn sys/oracle as sysdba
+SQL> set serveroutput on
+
+SQL>begin 
+    DBMS_CDC_PUBLISH.DROP_CHANGE_TABLE(
+     'oltppub',
+     'ORDERS_SYNCH_CT',
+      'Y');
+   end;
+/
+
+SQL>EXEC  DBMS_CDC_PUBLISH.DROP_CHANGE_SET('EASYDW_SCS');
+
+
+
+
+--- synchronous CDC (Change Data Capture)
+begin
+	DBMS_CDC_PUBLISH.create_change_set
+        (change_set_name => 'EASYDW_SCS',
+         description => 'Synchronous Change set for EasyDW',
+         change_source_name => 'SYNC_SOURCE'
+        );
+        
+        DBMS_CDC_PUBLISH.CREATE_CHANGE_TABLE
+        (
+           owner => 'oltppub',
+           change_table_name => 'ORDERS_SYNCH_CT',
+           change_set_name   => 'EASYDW_SCS',
+           source_schema     => 'oltp',
+           source_table      => 'ORDERS',
+           column_type_list  => 'order_id    varchar2(8),product_id varchar2(8),'
+                              ||'customer_id varchar2(10),purchase_date date,'
+                              ||'purchase_time     number(4,0),purchase_price number(6,2),'
+                              ||'shipping_charge   number(5,2),today_special_offer varchar2(1),'
+                              ||'sales_person      varchar2(20),'
+                              ||'payment_method    varchar2(10) ',
+                             capture_values => 'both' ,
+                             rs_id   => 'y',
+                             row_id  => 'n',
+                             user_id => 'n',
+                             timestamp => 'n',
+                             object_id => 'n',
+                             source_colmap  => 'y',
+                             target_colmap  => 'y',
+                             options_string => 'TABLESPACE USERS'
+         );
+end;
+/
+
+SQL> GRANT SELECT ON oltppub.ORDERS_SYNCH_CT to oltpsubscr;
+
+
+--- to see a list of change tables that have been published, 
+--- queey the cange_tables dictionary table
+SQL> select change_table_name from change_tables;
+
+
+---- put the data in archiving mode
+
+SQL> shutdown immediate 
+SQL> startup mount
+SQL> alter database archivelog;
+SQL> alter database open;
+
+---- the next step requires altering the database in order to
+---- create the additional logging information into the log file
+
+--- the force logging clause mean the databse will always generate redo logs
+--- even when database operation have been used the nologging clause
+SQL> alter database force logging;
+
+--- adding minimal supplemental logging
+SQL> alter database add supplemental log data;
+
+--- 
+SQL> alter table oltp.orders
+     add supplemental log group log_group_orders
+     (order_id, product_id, customer_id,
+      purchase_date, purchase_time, purchase_price,
+      shipping_charge, today_special_offer) ALWAYS;
+
+--- enable the user to use Streams and the underlying oracle 
+--- advanced queue objects
+sql> EXECUTE dbms_streams_auth.grant_admin_privilege(GRANTEE=> 'oltppub');
+
+--- each source table must be instantiated with oracle streams 
+--- in order that stream can capture creation information that it requires 
+--- in order to record the source table data changes
+
+SQL> execute dbms_capture_adm.prepare_table_instantiation(table_name => 'oltp.orders');
+
+--- the SCN number of the data dictionary build
+--- for more detail review page (193)
+SQL> exec dbms_capture_adm.build();
+
+----- this command creates the change set and its associated oracle 
+----- streams processes but does not start them
+SQL>
+  begin
+	dbms_cdc_publish.create_change_set
+	  (
+		change_set_name => 'EASYDW_ACS',
+                description => 'Asynchronous Change set for purchases info',
+                change_source_name => 'HOTLOG_SOURCE',
+                stop_on_ddl => 'y');
+  end;
+/
+                                  
+---- Now we can create the change table, ORDERS_CT, in the OLTPPUB
+---- publisher account, which will contain the changes that have been mindes from
+---- the on-line redo log. execute the fllowing from the OLTPPUB account : 
+SQL> 
+	begin
+         dbms_cdc_publish.create_change_table
+          (
+           owner => 'oltppub',
+           change_table_name => 'ORDERS_ASYNCH_CT',
+           change_set_name => 'EASYDW_ACS',
+           source_schema => 'OLTP',
+           source_table => 'ORDERS',
+           column_type_list  => 'order_id    varchar2(8),product_id varchar2(8),'
+                              ||'customer_id varchar2(10),purchase_date date,'
+                              ||'purchase_time     number(4,0),purchase_price number(6,2),'
+                              ||'shipping_charge   number(5,2),today_special_offer varchar2(1),'
+                              ||'sales_person      varchar2(20),'
+                              ||'payment_method    varchar2(10) ',
+                             capture_values => 'both' ,
+                             rs_id   => 'y',
+                             row_id  => 'n',
+                             user_id => 'n',
+                             timestamp => 'n',
+                             object_id => 'n',
+                             source_colmap  => 'n',
+                             target_colmap  => 'y',
+                             options_string => 'TABLESPACE USERS');
+end;
+/
+
+
+SQL> GRANT SELECT ON oltppub.ORDERS_ASYNCH_CT to OLTPSUBSCR;
+
+
+
+--- finally, we will enable our change set EASYDW_ACS, which starts the
+    underlying oracle streams processes for moving our change data :
+SQL> begin 
+        dbms_cdc_publish.alter_change_set
+         (
+          change_set_name => 'EASYDW_ACS',
+          enable_capture => 'y'
+         );
+     end;
+/
+
+
+create table oltp.orders
+( 
+ order_id          varchar2(8)  NOT NULL,
+ product_id        varchar2(8)  NOT null,
+ customer_id       varchar2(10) not null,
+ purchase_date     date         not null,
+ purchase_time     number(4,0)  not null,
+ purchase_price    number(6,2)  not null, 
+ shipping_charge   number(5,2)  not null,
+ today_special_offer  varchar2(1) not null,
+ sales_person_id      varchar2(20) not null,
+ payment_method       varchar2(10) not null
+)
+
+---- To verify that everything is working, perform this test
+---- test 
+
+SQL> select count(*)  from OLTPPUB.ORDERS_ASYNCH_CT;
+SQL> insert into oltp.orders values ( 1, 1, 1, sysdate,
+                                 12, 50, 7.2, 'y', '009asa09','cash');
+
+SQL> commit; 
+
+SQL> select count(*)  from OLTPPUB.ORDERS_ASYNCH_CT;
+SQL> select * from OLTPPUB.ORDERS_ASYNCH_CT;
+
+---- until here we have streams sample
+-----------------------------------------------------------------
+-----------------------------------------------------------------
+-----------------------------------------------------------------
+
+---- Subscribing to Change Data
+---- A subscription can contain data from one or more 
+---- change tables in the same change set
+
+--- to see the all source table 
+SQL> select * from all_source_tables;
+
+---- creating a Subscription
+---- there are several steps to creating a subscription
+
+SQL> exec DBMS_CDC_SUBSCRIBE.DROP_SUBSCRIPTION('ORDERS_SUB');
+
+1- create a subscription
+
+SQL> begin
+       dbms_cdc_subscribe.create_subscription
+            (subscription_name => 'ORDERS_SUB',
+             change_set_name => 'EASYDW_ACS',
+             description => 'Changes to orders table');
+      end;
+/
+
+
+
+2- List all the tables and columns the extract program wants to subscribe to
+ SQL> begin
+    dbms_cdc_subscribe.subscribe
+         (subscription_name => 'ORDERS_SUB',
+          source_schema => 'oltp',
+          source_table  => 'orders',
+          column_list   => 'order_id, product_id,'
+                           ||'customer_id, purchase_date,'
+                           ||'purchase_time, purchase_price,'
+                           ||'shipping_charge, today_special_offer,'
+                           ||'sales_person, payment_method ',
+         subscriber_view => 'ORDERS_VIEW'
+         );
+    end;
+/
+
+3- Activate the subscription
+
+SQL>begin 
+     dbms_cdc_subscribe.activate_subscription
+      (subscription_name => 'ORDERS_SUB');
+    end;
+/
+
+
+---- processing the change data
+SQL> insert into oltp.orders
+     ( order_id,product_id,customer_id,
+       purchase_date,
+       purchase_time,purchase_price,shipping_charge,
+       today_special_offer,
+       sales_person_id,payment_method)
+      values('123','SP1031','AB123495',
+             to_date('01-JAN-2004','dd-mon-yyyy'),
+             1031,156.45,6.95,'N','SMITH','VISA');
+
+SQL> insert into oltp.orders
+     ( order_id,product_id,customer_id,
+       purchase_date,
+       purchase_time,purchase_price,shipping_charge,
+       today_special_offer,
+       sales_person_id,payment_method)
+      values('123','SP1031','AB123495',
+             to_date('01-FEB-2004','dd-mon-yyyy'),
+             1031,156.45,6.95,'N','SMITH','VISA');
+SQL> commit;
+
+
+---- to see the changes Extend the window
+SQL> begin
+       dbms_cdc_subscribe.extend_window
+           (subscription_name => 'ORDERS_SUB');
+     end;
+/
+
+--- now query the changes in th view 
+SQL> select * from ORDERS_VIEW;
+
+--- Ending the Subscription
+SQL> begin 
+     	dbms_cdc_subscribe.drop_subscription
+     	(subscription_name => 'ORDERS_SUB');
+     end;
+/
+
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Transforming the data into a
+Common Representation

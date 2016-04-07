@@ -1,0 +1,46 @@
+
+-- Author: 	Hussain refaa
+-- creation Date: 	2008
+-- Last Updated: 	0000-00-00
+-- Control Number:	xxxx-xxxx-xxxx-xxxx
+-- Version: 	0.0
+-- Phone : +4915775148443
+-- Email: hus244@gmail.com
+
+
+create or replace view PurchaseItem_View
+as
+select distinct  itm_purch.item_id itemID, itm_purch.vendor_id vendorID,
+           itm_purch.id_date  IDdate,
+         sum(itm_purch.amount) sumAmount , sum(itm_purch.quantity) sumQuantity
+           from item_purchase itm_purch, vendors vdr,items itm 
+           group by cube(itm_purch.item_id,itm_purch.vendor_id, itm_purch.id_date);
+
+create or replace view PURCHASE_View as 
+SELECT item_id, DECODE(GROUPING(id_date),1,'All date',id_date) AS dateID
+,      DECODE(GROUPING(item_id),1,'item Total',item_id) AS itemID
+,      SUM(Amount) amnt
+FROM   item_purchase
+GROUP  BY CUBE(id_date,item_id);
+
+
+
+select purch_vw.*, itm.ITEM_NAME_EN, dt_table.yr 
+from PURCHASE_View purch_vw, items itm, date_table dt_table 
+where purch_vw.item_id = itm.id 
+and purch_vw.item_id = dt_table.id_date
+/
+
+
+select p.category, t.year, sum(purchase_price) total_sales
+from items p, item_purchase f, date_table t
+where p.id = f.item_id and
+	t.date_id = f.date_id 
+group by cube(p.id, t.yr)
+
+
+select p.ITEM_NAME_EN, t.yr, sum(amount) total_purch
+from items p, item_purchase f, date_table t
+where p.id = f.item_id and
+	t.date_id = f.date_id 
+group by rollup(p.id, t.yr) 

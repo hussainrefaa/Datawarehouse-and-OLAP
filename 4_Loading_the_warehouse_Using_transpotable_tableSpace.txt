@@ -1,0 +1,80 @@
+
+-- Author: 	Hussain refaa
+-- creation Date: 	2008
+-- Last Updated: 	0000-00-00
+-- Control Number:	xxxx-xxxx-xxxx-xxxx
+-- Version: 	0.0
+-- Phone : +4915775148443
+-- Email: hus244@gmail.com
+--- Loading the warehouse Using
+--- Transportable Tablespaces
+
+1- creat a tablespace in the OLTP System
+
+SQL> grant create tablespace to oltp;
+
+SQL> conn oltp/oltp@asm 
+
+SQL> create tablespace orders
+     datafile 'c:\datafiles\orders.dbf'
+     size 5m reuse
+     autoextend on
+     default storage
+     (initial 64k pctincrease 0 maxextents unlimited);
+
+2- Move the data for April 2004 into a table in the newly
+   created tablespace
+
+SQL> create table oltp.apr_orders tablespace orders
+     as
+     select * from orders
+     where PURCHASE_DATE between to_date('01-APR-2004','dd-mon-yyyy')
+                      and    to_date('30-APR-2004','dd-mon-yyyy');
+
+3- Alter the tablespace so that it is read_only
+
+SQL> grant alter tablespace to oltp;
+
+SQL> conn oltp/oltp@asm
+SQL> alter tablespace orders read only;
+
+4- export the metadate
+
+c:\> expdp system/oracle  TRANSPORT_TABLESPACES=orders DIRECTORY = data_file_dir DUMPFILE  = expdat1.dmp
+
+5- Convert the Datafiles (Optional)
+
+--- if we as transporting between defferent platforms
+SQL> select d.platform_name, tp.endian_format
+     from v$transportable_platform tp,
+          v$database d
+     where tp.platform_name = d.platform_name;
+
+
+c:\> rman target / 
+
+RMAN> convert tablespace orders
+      to platform 'Microsoft Windows IA (32-bit)'
+      FORMAT '/home/oracle/tt/%N_%f';
+
+--- to convert datafile
+
+RMAN> convert datafile 
+     '/oracle/orders.dbf' 
+     to PLATFORM= 'Microsoft Windows IA (32-bit)'
+     from PLATFORM='Linux IA (32-bit)';
+
+6- Transport the tablespace
+now copy the data file orders_5, and the export dump file
+expdat.dmp to the physical location on the system containing the staging
+database
+
+7- Import the Metadata
+C:\> impdp oltp/oltp@asm TRANSPORT_DATAFILES =c:\oracle\product\10.2.1\oradata\
+     DIRECTORY=tt2 DUMPFILE = expdat.dmp 
+     logfile=log_file_dir: imporders2004.log REMAP_SCHEMA(OLTP:Warhouse_user)
+
+
+8- Alter the tablespace to read/write
+
+SQL> alter tablespace orders READ WRITE;
